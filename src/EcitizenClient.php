@@ -9,9 +9,9 @@ use InvalidArgumentException;
 /**
  * The easy, beginner-friendly way to use eCitizen payments.
  *
- * No application-component registration, no database tables, no
- * interfaces to implement. Create one of these with your eCitizen
- * credentials and use plain-English fields:
+ * No application-component registration and no interfaces to implement
+ * for the basic flow. Create one of these with your eCitizen credentials
+ * and use plain-English fields:
  *
  *   $ecitizen = new EcitizenClient([
  *       'apiClientID' => '...',
@@ -28,8 +28,8 @@ use InvalidArgumentException;
  *       'idNumber'    => '12345678',
  *       'phone'       => '0712345678',
  *       'email'       => 'jane@example.com',
- *       'successUrl'  => 'https://example.com/payment/success',
- *       'notifyUrl'   => 'https://example.com/payment/notify',
+ *       'callbackUrl' => 'https://example.com/payment/success', // browser is redirected here after paying
+ *       'notifyUrl'   => 'https://example.com/payment/notify',  // eCitizen POSTs the verified result here
  *   ]);
  *
  * When eCitizen calls your notify URL, hand the posted data straight to
@@ -56,8 +56,11 @@ class EcitizenClient
         'phone' => 'clientMSISDN',
         'email' => 'clientEmail',
         'currency' => 'currency',
-        'successUrl' => 'callBackURLOnSuccess',
-        'notifyUrl' => 'notificationURL',
+        // eCitizen actually gives you two different URLs — see the class
+        // docblock and README "URLs explained" section for which is which.
+        'callbackUrl' => 'callBackURLOnSuccess', // browser redirect after payment (not verified on its own)
+        'successUrl' => 'callBackURLOnSuccess',  // alias of callbackUrl, kept for backwards compatibility
+        'notifyUrl' => 'notificationURL',        // server-to-server notification (verify() this one)
         'sendStkPush' => 'sendSTK',
     ];
 
@@ -96,7 +99,7 @@ class EcitizenClient
      * — post $payload as a form to $url (or use payButton() to skip this step).
      *
      * Accepts plain-English keys: amount, reference, description, name,
-     * idNumber, phone, email, currency, successUrl, notifyUrl, sendStkPush.
+     * idNumber, phone, email, currency, callbackUrl, notifyUrl, sendStkPush.
      */
     public function checkout(array $payment): array
     {
@@ -150,8 +153,10 @@ class EcitizenClient
     /**
      * Checks a callback/notification payload from eCitizen (just pass it
      * $_POST, or Yii's Yii::$app->request->bodyParams). Returns a plain
-     * array — nothing is saved anywhere, so there is no database or model
-     * to set up. It's entirely up to you what to do with the result.
+     * array; this method itself never writes to a database — what you do
+     * with the result, including whether/how you record it, is up to you
+     * (see the README's "Storing payment records" section for a worked
+     * example if you do want to persist it).
      *
      * Return shape:
      *   [

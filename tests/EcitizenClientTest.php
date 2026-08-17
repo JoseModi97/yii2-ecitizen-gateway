@@ -58,6 +58,24 @@ class EcitizenClientTest extends TestCase
         $this->assertNotEmpty($result['payload']['secureHash']);
     }
 
+    public function testCallbackUrlAliasMapsToCallBackURLOnSuccess(): void
+    {
+        $client = new EcitizenClient(self::CREDENTIALS);
+
+        $result = $client->checkout([
+            'amount' => 500,
+            'reference' => 'INV-0001',
+            'description' => 'School fees',
+            'name' => 'Jane Doe',
+            'idNumber' => '12345678',
+            'callbackUrl' => 'https://example.com/payment/success',
+            'notifyUrl' => 'https://example.com/payment/notify',
+        ]);
+
+        $this->assertSame('https://example.com/payment/success', $result['payload']['callBackURLOnSuccess']);
+        $this->assertSame('https://example.com/payment/notify', $result['payload']['notificationURL']);
+    }
+
     public function testCheckoutMissingFieldGivesFriendlyMessage(): void
     {
         $client = new EcitizenClient(self::CREDENTIALS);

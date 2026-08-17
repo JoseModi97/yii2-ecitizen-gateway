@@ -1,6 +1,6 @@
 {
     "name": "josemodi97/yii2-ecitizen-gateway",
-    "description": "Beginner-friendly eCitizen payment gateway for Yii2: build signed checkout payloads and verify callbacks with plain-English fields, no database tables required.",
+    "description": "Beginner-friendly eCitizen payment gateway for Yii2: build signed checkout payloads and verify callbacks with plain-English fields.",
     "type": "yii2-extension",
     "license": "MIT",
     "keywords": ["yii2", "ecitizen", "payment", "gateway", "kenya", "mpesa"],
