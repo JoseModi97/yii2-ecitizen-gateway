@@ -2,6 +2,31 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.2.0] - 2026-08-17
+
+### Changed
+
+- **`yiisoft/yii2` is no longer a required dependency.** `EcitizenGateway`
+  no longer extends `yii\base\Component`, and `EcitizenClient::payButton()`
+  no longer uses `yii\helpers\Html` — both are now plain PHP. This means:
+  - `composer require josemodi97/yii2-ecitizen-gateway` no longer pulls in
+    the Yii2 framework or its legacy `bower-asset/*` dependency chain.
+  - The library installs cleanly into Yii2 apps, Yii3 apps, or any other
+    PHP project — previously, installing it into a project that wasn't a
+    Yii2 app configured with the `asset-packagist.org` repository (e.g. a
+    Yii3 app) failed with an unresolvable `bower-asset/jquery` requirement,
+    since that requirement came from `yiisoft/yii2` itself, not from
+    anything this library actually uses.
+  - `yiisoft/yii2` moved to `suggest`, since it's still needed for the
+    optional Yii2-specific pieces: `EcitizenPaymentTrait`,
+    `EcitizenInvoiceInterface`, `EcitizenGateway::absoluteUrl()`, and
+    registering `EcitizenGateway` as a Yii2 application component.
+  - `EcitizenGateway`'s constructor now throws `InvalidArgumentException`
+    instead of `yii\base\InvalidConfigException` for a missing setting.
+- This is not a breaking change for existing Yii2 users: `EcitizenClient`'s
+  public API (`payButton()`, `checkout()`, `verify()`, `isPaid()`) and
+  output are unchanged.
+
 ## [1.1.1] - 2026-08-17
 
 ### Fixed

@@ -2,28 +2,36 @@
 
 namespace odhis\ecitizen;
 
-use Yii;
-use yii\base\Component;
-use yii\base\InvalidConfigException;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Builds and signs eCitizen PaymentAPI checkout payloads, and verifies
  * inbound callback/notification signatures against the same secret.
  *
- * Configure as an application component:
+ * Plain PHP, no framework required. Usable directly:
  *
- * 'components' => [
- *     'ecitizen' => [
- *         'class' => \odhis\ecitizen\EcitizenGateway::class,
- *         'apiClientID' => '...',
- *         'apiKey' => '...',
- *         'secret' => '...',
- *         'serviceID' => '...',
- *         'url' => 'https://payments.ecitizen.go.ke/PaymentAPI/iframev2.1.php',
- *     ],
- * ],
+ *   $gateway = new EcitizenGateway([
+ *       'apiClientID' => '...',
+ *       'apiKey' => '...',
+ *       'secret' => '...',
+ *       'serviceID' => '...',
+ *       'url' => 'https://payments.ecitizen.go.ke/PaymentAPI/iframev2.1.php',
+ *   ]);
+ *
+ * Most users won't need this class directly — see EcitizenClient for the
+ * beginner-friendly entry point. If you're in a Yii2 app and want this
+ * registered as an application component instead, that still works:
+ *
+ *   'components' => [
+ *       'ecitizen' => [
+ *           'class' => \odhis\ecitizen\EcitizenGateway::class,
+ *           'apiClientID' => '...',
+ *           // ...
+ *       ],
+ *   ],
  */
-class EcitizenGateway extends Component
+class EcitizenGateway
 {
     public $apiClientID;
     public $apiKey;
@@ -37,13 +45,17 @@ class EcitizenGateway extends Component
     /** @var string[] eCitizen statuses treated as a confirmed/successful payment. */
     public $successStatuses = ['paid', 'settled', 'success', 'successful', 'completed', 'complete'];
 
-    public function init()
+    public function __construct(array $config = [])
     {
-        parent::init();
+        foreach ($config as $property => $value) {
+            if (property_exists($this, $property)) {
+                $this->$property = $value;
+            }
+        }
 
         foreach (['apiClientID', 'apiKey', 'secret', 'serviceID', 'url'] as $attribute) {
             if ($this->{$attribute} === null || $this->{$attribute} === '') {
-                throw new InvalidConfigException("The eCitizen gateway '{$attribute}' setting is required.");
+                throw new InvalidArgumentException("The eCitizen gateway '{$attribute}' setting is required.");
             }
         }
     }
@@ -74,7 +86,7 @@ class EcitizenGateway extends Component
             'clientIDNumber' => $clientIDNumber,
         ] as $field => $value) {
             if ($value === '') {
-                throw new InvalidConfigException("The eCitizen checkout field '{$field}' is required.");
+                throw new InvalidArgumentException("The eCitizen checkout field '{$field}' is required.");
             }
         }
 
@@ -153,9 +165,22 @@ class EcitizenGateway extends Component
         return in_array(strtolower(trim((string)$status)), $this->successStatuses, true);
     }
 
+    /**
+     * Convenience for Yii2 apps: resolves a route array to an absolute URL
+     * via Yii::$app->urlManager. Requires a running Yii2 application —
+     * outside Yii2, build the URL yourself and pass it directly to
+     * checkout()/createCheckoutPayload() instead.
+     */
     public function absoluteUrl(array $route): string
     {
-        return Yii::$app->urlManager->createAbsoluteUrl($route);
+        if (!class_exists('Yii', false) || \Yii::$app === null) {
+            throw new RuntimeException(
+                'absoluteUrl() needs a running Yii2 application (Yii::$app). '
+                . "If you're not using Yii2, build the URL yourself and pass it directly instead."
+            );
+        }
+
+        return \Yii::$app->urlManager->createAbsoluteUrl($route);
     }
 
     private function normalizeAmount($amount): string

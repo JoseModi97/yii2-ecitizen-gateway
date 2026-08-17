@@ -2,9 +2,9 @@
 
 namespace odhis\ecitizen\tests;
 
+use InvalidArgumentException;
 use odhis\ecitizen\EcitizenGateway;
 use PHPUnit\Framework\TestCase;
-use yii\base\InvalidConfigException;
 
 class EcitizenGatewayTest extends TestCase
 {
@@ -21,7 +21,7 @@ class EcitizenGatewayTest extends TestCase
 
     public function testMissingSettingThrows(): void
     {
-        $this->expectException(InvalidConfigException::class);
+        $this->expectException(InvalidArgumentException::class);
         new EcitizenGateway(['apiClientID' => 'CLIENT1']);
     }
 
@@ -48,7 +48,7 @@ class EcitizenGatewayTest extends TestCase
     {
         $gateway = $this->makeGateway();
 
-        $this->expectException(InvalidConfigException::class);
+        $this->expectException(InvalidArgumentException::class);
         $gateway->createCheckoutPayload([
             'amountExpected' => 500,
             'billRefNumber' => 'INV-0001',

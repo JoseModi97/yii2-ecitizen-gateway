@@ -3,15 +3,16 @@
 namespace odhis\ecitizen;
 
 use odhis\ecitizen\helpers\PhoneHelper;
-use yii\helpers\Html;
 use InvalidArgumentException;
 
 /**
  * The easy, beginner-friendly way to use eCitizen payments.
  *
- * No application-component registration and no interfaces to implement
- * for the basic flow. Create one of these with your eCitizen credentials
- * and use plain-English fields:
+ * Plain PHP — no framework required, no application-component
+ * registration, and no interfaces to implement for the basic flow. Works
+ * the same whether you're in a Yii2 app, a Yii3 app, or anything else.
+ * Create one of these with your eCitizen credentials and use plain-English
+ * fields:
  *
  *   $ecitizen = new EcitizenClient([
  *       'apiClientID' => '...',
@@ -110,14 +111,10 @@ class EcitizenClient
             $invoice['clientMSISDN'] = PhoneHelper::normalize($invoice['clientMSISDN']);
         }
 
-        try {
-            $payload = $this->gateway->createCheckoutPayload($invoice);
-        } catch (\yii\base\InvalidConfigException $e) {
-            // Should not normally happen since assertRequiredPaymentFields()
-            // already checked — but translate to the same friendly exception
-            // type in case the gateway rejects something we didn't catch.
-            throw new InvalidArgumentException($e->getMessage(), 0, $e);
-        }
+        // EcitizenGateway throws the same InvalidArgumentException type,
+        // so nothing to translate here — this should also be unreachable
+        // in practice since assertRequiredPaymentFields() already checked.
+        $payload = $this->gateway->createCheckoutPayload($invoice);
 
         return [
             'url' => $this->gateway->url,
@@ -136,16 +133,16 @@ class EcitizenClient
 
         $buttonOptions = array_merge(['class' => 'btn btn-primary'], $buttonOptions);
 
-        // Built by hand rather than Html::beginForm(): this form submits to
-        // eCitizen's external domain, not back into this app, so it has no
-        // use for our app's CSRF token — and generating one would require a
-        // fully bootstrapped Yii::$app just to print a static form.
-        $html = Html::beginTag('form', ['action' => $checkout['url'], 'method' => 'post', 'target' => '_blank']);
+        // Built with plain PHP rather than a framework's HTML helper: this
+        // keeps the library dependency-free (usable in Yii2, Yii3, or any
+        // other PHP project), and the form posts to eCitizen's external
+        // domain anyway, so a framework CSRF token has no place in it.
+        $html = '<form action="' . $this->escapeAttribute($checkout['url']) . '" method="post" target="_blank">';
         foreach ($checkout['payload'] as $field => $value) {
-            $html .= Html::hiddenInput($field, $value);
+            $html .= '<input type="hidden" name="' . $this->escapeAttribute($field) . '" value="' . $this->escapeAttribute((string)$value) . '">';
         }
-        $html .= Html::submitButton(Html::encode($buttonLabel), $buttonOptions);
-        $html .= Html::endTag('form');
+        $html .= '<button type="submit"' . $this->renderAttributes($buttonOptions) . '>' . $this->escapeText($buttonLabel) . '</button>';
+        $html .= '</form>';
 
         return $html;
     }
@@ -267,5 +264,28 @@ class EcitizenClient
         $invoice['clientEmail'] = (string)($invoice['clientEmail'] ?? '');
 
         return $invoice;
+    }
+
+    private function escapeAttribute(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+
+    private function escapeText(string $value): string
+    {
+        return htmlspecialchars($value, ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+
+    private function renderAttributes(array $attributes): string
+    {
+        $html = '';
+        foreach ($attributes as $name => $value) {
+            if ($value === null || $value === false) {
+                continue;
+            }
+            $html .= ' ' . $this->escapeAttribute((string)$name) . '="' . $this->escapeAttribute($value === true ? (string)$name : (string)$value) . '"';
+        }
+
+        return $html;
     }
 }

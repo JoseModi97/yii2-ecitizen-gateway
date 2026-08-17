@@ -1,8 +1,22 @@
 # yii2-ecitizen-gateway
 
-The easy way to accept eCitizen payments from a Yii2 app. No models, no
-interfaces to implement for the basic flow — create one object with your
-eCitizen credentials, and use two methods.
+The easy way to accept eCitizen payments from PHP. Plain PHP, no required
+dependencies, no models, no interfaces to implement for the basic flow —
+create one object with your eCitizen credentials, and use two methods.
+Works the same whether you're in a Yii2 app, a Yii3 app, or no framework
+at all.
+
+## Compatibility
+
+- Requires PHP 7.4 or newer — no upper bound, so current PHP 8.x works too.
+- `EcitizenClient` and `EcitizenGateway` (everything in "Get started"
+  below) have **no required dependencies** beyond PHP itself. Installing
+  this package does not pull in Yii2, Yii3, or anything else.
+- `yiisoft/yii2` is only needed — and only as an optional `suggest`, never
+  installed automatically — if you use the Yii2-specific extras described
+  under "Advanced" (`EcitizenPaymentTrait`, `EcitizenInvoiceInterface`,
+  `EcitizenGateway::absoluteUrl()`, or registering `EcitizenGateway` as a
+  Yii2 application component).
 
 ## 1. Install
 
@@ -104,7 +118,7 @@ still accepted as an alias of `callbackUrl` if you're already using it.
 ## 5. Confirm the payment
 
 eCitizen will call your `notifyUrl` after payment. In that action, hand it
-whatever was posted:
+whatever was posted. In a Yii2 controller:
 
 ```php
 public function actionNotify()
@@ -121,6 +135,17 @@ public function actionNotify()
 
     return ['status' => $result['success'] ? 'ok' : 'error'];
 }
+```
+
+Outside Yii2 — Yii3, another framework, or plain PHP — it's the same call,
+just with whatever your framework calls "the posted body" instead of
+`Yii::$app->request->bodyParams`. Plain PHP:
+
+```php
+$result = $ecitizen->verify($_POST);
+
+header('Content-Type: application/json');
+echo json_encode(['status' => $result['success'] ? 'ok' : 'error']);
 ```
 
 `verify()` checks the eCitizen signature and payment status for you and
@@ -173,6 +198,12 @@ generic design for it.
 moment you show the pay button, with status `Pending`, and (2) flip it to
 `Settled` once `verify()` confirms it, so you have a durable record even
 if the browser tab closes before the callback fires.
+
+The table design and SQL below are framework-agnostic. The insert/update
+code samples use Yii2's `Yii::$app->db` query builder since that's this
+library's primary audience — if you're on Yii3, another framework, or
+plain PHP, run the equivalent insert/update through whatever database
+layer you're already using; nothing about the table shape changes.
 
 ### 1. Design the table
 
@@ -376,11 +407,13 @@ builder calls above work unchanged regardless of which one you're on.
 If you'd rather have an ActiveRecord model and have the library do this
 update for you automatically, see "Advanced" below.
 
-## Advanced (optional)
+## Advanced (optional, Yii2-only)
 
-If you already have your own invoice/payment ActiveRecord and want the
-library to update it directly instead of handling `verify()`'s result
-yourself, two optional pieces are included:
+If you're in a Yii2 app, already have your own invoice/payment
+ActiveRecord, and want the library to update it directly instead of
+handling `verify()`'s result yourself, two optional pieces are included.
+Unlike everything above, these do require `yiisoft/yii2` — run
+`composer require yiisoft/yii2` first if you don't already have it:
 
 - `src/interfaces/EcitizenInvoiceInterface.php` — a small contract
   (`getBillRefNumber()`, `markStatus()`, etc.) your model can implement.
@@ -389,18 +422,23 @@ yourself, two optional pieces are included:
   lookup + update of your model.
 
 These are entirely optional — skip them if `EcitizenClient` above already
-covers what you need, which is true for most projects.
+covers what you need, which is true for most projects, and for any non-Yii2
+project.
 
 ## Files
 
 - `src/EcitizenClient.php` — the beginner-friendly entry point described
-  above: `payButton()`, `checkout()`, `verify()`, `isPaid()`.
-- `src/EcitizenGateway.php` — the underlying Yii2 component that signs
-  payloads and verifies hashes (used internally by `EcitizenClient`, or
-  usable directly for advanced cases).
+  above: `payButton()`, `checkout()`, `verify()`, `isPaid()`. Plain PHP, no
+  dependencies.
+- `src/EcitizenGateway.php` — the plain-PHP class that signs payloads and
+  verifies hashes (used internally by `EcitizenClient`, or usable directly
+  — including as a Yii2 application component, see its class docblock —
+  for advanced cases).
 - `src/helpers/PhoneHelper.php` — Kenyan MSISDN normalization/validation.
+  Plain PHP, no dependencies.
 - `src/interfaces/EcitizenInvoiceInterface.php`,
-  `src/controllers/EcitizenPaymentTrait.php` — optional, only needed if
-  you want automatic database updates against your own ActiveRecord model
-  (see "Advanced" above). For a plain SQL table with no ActiveRecord, see
-  "Storing payment records in your own database" above instead.
+  `src/controllers/EcitizenPaymentTrait.php` — optional, Yii2-only, only
+  needed if you want automatic database updates against your own
+  ActiveRecord model (see "Advanced" above). For a plain SQL table with no
+  ActiveRecord, see "Storing payment records in your own database" above
+  instead.
