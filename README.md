@@ -29,8 +29,7 @@ That's it — it's a normal Packagist package
 so this is the same one-line install as any other Composer dependency. No
 repository configuration, no path setup.
 
-<details>
-<summary>Installing from source instead (contributing, or no internet access to Packagist)</summary>
+#### Installing from source instead (contributing, or no internet access to Packagist)
 
 Clone or copy this repo, then point your app's `composer.json` at it as a
 local path repository:
@@ -49,7 +48,6 @@ local path repository:
 ```bash
 composer update josemodi97/yii2-ecitizen-gateway
 ```
-</details>
 
 ## 2. Get your eCitizen credentials
 
@@ -266,8 +264,7 @@ php yii migrate                                          # applies it
 If you're not using migrations, here's the same table as raw SQL for the
 most common engines:
 
-<details>
-<summary>MySQL / MariaDB</summary>
+#### MySQL / MariaDB
 
 ```sql
 CREATE TABLE ecitizen_payments (
@@ -285,10 +282,8 @@ CREATE TABLE ecitizen_payments (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 ```
-</details>
 
-<details>
-<summary>PostgreSQL</summary>
+#### PostgreSQL
 
 ```sql
 CREATE TABLE ecitizen_payments (
@@ -306,10 +301,8 @@ CREATE TABLE ecitizen_payments (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 ```
-</details>
 
-<details>
-<summary>SQL Server</summary>
+#### SQL Server
 
 ```sql
 CREATE TABLE ecitizen_payments (
@@ -327,10 +320,8 @@ CREATE TABLE ecitizen_payments (
     updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
 );
 ```
-</details>
 
-<details>
-<summary>SQLite</summary>
+#### SQLite
 
 ```sql
 CREATE TABLE ecitizen_payments (
@@ -348,10 +339,8 @@ CREATE TABLE ecitizen_payments (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 ```
-</details>
 
-<details>
-<summary>Oracle</summary>
+#### Oracle
 
 ```sql
 CREATE TABLE ecitizen_payments (
@@ -369,7 +358,6 @@ CREATE TABLE ecitizen_payments (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 ```
-</details>
 
 ### 3. Insert a row when you create the payment
 

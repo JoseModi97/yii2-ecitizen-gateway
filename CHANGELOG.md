@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.2.1] - 2026-08-17
+
+### Changed
+
+- README: replaced `<details><summary>` collapsible HTML blocks (used for
+  the "installing from source" note and the per-database raw SQL
+  examples) with plain `####` headings. Packagist and GitHub both render
+  the HTML version fine, but it was suspected of being the reason the
+  yiiframework.com extension listing page's README parser was rendering
+  the page body as blank. No content changed, only the markup.
+
 ## [1.2.0] - 2026-08-17
 
 ### Changed
