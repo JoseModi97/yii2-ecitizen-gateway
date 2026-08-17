@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.1.1] - 2026-08-17
+
+### Fixed
+
+- README install instructions now show a normal
+  `composer require josemodi97/yii2-ecitizen-gateway` (the package is
+  published on Packagist) instead of requiring a local `path` repository
+  entry — that's still documented, but only as a fallback for installing
+  from source. Also fixed the leftover `odhis/...` package name in that
+  example, which never matched the actual Packagist name.
+
 ## [1.1.0] - 2026-08-17
 
 ### Changed

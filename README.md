@@ -6,8 +6,20 @@ eCitizen credentials, and use two methods.
 
 ## 1. Install
 
-Copy the `src/` folder into your project (e.g. `common/ecitizen/`), or add
-it as a local path package in your app's `composer.json`:
+```bash
+composer require josemodi97/yii2-ecitizen-gateway
+```
+
+That's it — it's a normal Packagist package
+([josemodi97/yii2-ecitizen-gateway](https://packagist.org/packages/josemodi97/yii2-ecitizen-gateway)),
+so this is the same one-line install as any other Composer dependency. No
+repository configuration, no path setup.
+
+<details>
+<summary>Installing from source instead (contributing, or no internet access to Packagist)</summary>
+
+Clone or copy this repo, then point your app's `composer.json` at it as a
+local path repository:
 
 ```json
 {
@@ -15,14 +27,15 @@ it as a local path package in your app's `composer.json`:
         { "type": "path", "url": "../yii2-ecitizen-gateway" }
     ],
     "require": {
-        "odhis/yii2-ecitizen-gateway": "*"
+        "josemodi97/yii2-ecitizen-gateway": "*"
     }
 }
 ```
 
 ```bash
-composer update odhis/yii2-ecitizen-gateway
+composer update josemodi97/yii2-ecitizen-gateway
 ```
+</details>
 
 ## 2. Get your eCitizen credentials
 
