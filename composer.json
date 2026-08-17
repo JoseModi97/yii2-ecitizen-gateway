@@ -1,0 +1,45 @@
+{
+    "name": "josemodi97/yii2-ecitizen-gateway",
+    "description": "Beginner-friendly eCitizen payment gateway for Yii2: build signed checkout payloads and verify callbacks with plain-English fields, no database tables required.",
+    "type": "yii2-extension",
+    "license": "MIT",
+    "keywords": ["yii2", "ecitizen", "payment", "gateway", "kenya", "mpesa"],
+    "homepage": "https://github.com/JoseModi97/yii2-ecitizen-gateway",
+    "repositories": [
+        { "type": "composer", "url": "https://asset-packagist.org" }
+    ],
+    "support": {
+        "issues": "https://github.com/JoseModi97/yii2-ecitizen-gateway/issues",
+        "source": "https://github.com/JoseModi97/yii2-ecitizen-gateway"
+    },
+    "authors": [
+        {
+            "name": "Joseph Odhiambo",
+            "homepage": "https://github.com/JoseModi97",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "yiisoft/yii2": "^2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6 || ^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "odhis\\ecitizen\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "odhis\\ecitizen\\tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true
+        }
+    }
+}
